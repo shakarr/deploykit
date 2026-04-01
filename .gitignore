@@ -1,7 +1,33 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
+
+# Environment variables
 .env
+.env.local
+.env.production
+
+# Logs
 *.log
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Vite
 .vite/
+
+# Claude Code
 .claude
+
+# Docker volumes (dev)
+postgres-data/
+redis-data/
