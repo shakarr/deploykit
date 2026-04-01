@@ -1,0 +1,123 @@
+services:
+  # Traefik (Reverse Proxy + SSL)
+  traefik:
+    image: traefik:v3.6
+    container_name: deploykit-traefik
+    restart: unless-stopped
+    command:
+      - --api.dashboard=false
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=deploykit-network
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@example.com}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --log.level=INFO
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    networks:
+      - deploykit-network
+  postgres:
+    image: postgres:16-alpine
+    container_name: deploykit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-deploykit}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-deploykit}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - deploykit-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-deploykit}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:7-alpine
+    container_name: deploykit-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy noeviction
+    volumes:
+      - redis-data:/data
+    networks:
+      - deploykit-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # DeployKit API
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    container_name: deploykit-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DB_USER:-deploykit}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-deploykit}
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      API_PORT: 4000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/backups/deploykit:/var/backups/deploykit
+    networks:
+      - deploykit-network
+    labels:
+      # Traefik v3.6 — PathPrefix only accepts 1 param, use || for multiple
+      - traefik.enable=true
+      - traefik.http.routers.deploykit-api.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/trpc`) || PathPrefix(`/socket.io`) || PathPrefix(`/ws`))
+      - traefik.http.routers.deploykit-api.entrypoints=websecure
+      - traefik.http.routers.deploykit-api.tls.certresolver=letsencrypt
+      - traefik.http.services.deploykit-api.loadbalancer.server.port=4000
+
+  # DeployKit Web
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+      args:
+        VITE_API_URL: https://${DOMAIN}
+    container_name: deploykit-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    networks:
+      - deploykit-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.deploykit-web.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.deploykit-web.entrypoints=websecure
+      - traefik.http.routers.deploykit-web.tls.certresolver=letsencrypt
+      - traefik.http.services.deploykit-web.loadbalancer.server.port=3000
+      - traefik.http.routers.deploykit-web.priority=1
+
+volumes:
+  pgdata:
+  redis-data:
+  letsencrypt:
+
+networks:
+  deploykit-network:
+    external: true

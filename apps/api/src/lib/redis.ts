@@ -1,0 +1,51 @@
+import { config } from "dotenv";
+import { resolve } from "path";
+import { Queue } from "bullmq";
+import IORedis from "ioredis";
+
+config({ path: resolve(import.meta.dirname, "../../../../.env") });
+
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const redis = new IORedis(redisUrl, { maxRetriesPerRequest: null });
+
+const deployQueue = new Queue("deploy", {
+  connection: redis,
+  defaultJobOptions: {
+    removeOnComplete: { count: 50 },
+    removeOnFail: { count: 20 },
+    attempts: 1,
+  },
+});
+
+const backupQueue = new Queue("backup", {
+  connection: redis,
+  defaultJobOptions: {
+    removeOnComplete: { count: 100 },
+    removeOnFail: { count: 50 },
+    attempts: 3,
+    backoff: { type: "exponential", delay: 5000 },
+  },
+});
+
+const RT_PREFIX = "rt:";
+const RT_TTL_SEC = 7 * 24 * 60 * 60; // 7 days
+
+// Key: rt:{token}  →  value: userId  (TTL 7 days)
+// On login/register : set
+// On refresh        : del old + set new  (rotation)
+// On logout         : del
+const refreshTokenStore = {
+  async set(token: string, userId: string): Promise<void> {
+    await redis.set(`${RT_PREFIX}${token}`, userId, "EX", RT_TTL_SEC);
+  },
+
+  async get(token: string): Promise<string | null> {
+    return redis.get(`${RT_PREFIX}${token}`);
+  },
+
+  async del(token: string): Promise<void> {
+    await redis.del(`${RT_PREFIX}${token}`);
+  },
+};
+
+export { refreshTokenStore, redis, deployQueue, backupQueue };

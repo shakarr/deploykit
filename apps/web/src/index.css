@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-surface-0: #0a0a0f;
+  --color-surface-1: #12121a;
+  --color-surface-2: #1a1a25;
+  --color-surface-3: #242430;
+  --color-border: #2a2a3a;
+  --color-border-hover: #3a3a50;
+
+  --color-accent: #6c5ce7;
+  --color-accent-hover: #7c6cf7;
+  --color-accent-muted: #6c5ce720;
+
+  --color-success: #00d68f;
+  --color-warning: #ffaa00;
+  --color-danger: #ff4757;
+  --color-info: #4ecdc4;
+
+  --color-text-primary: #e8e8ed;
+  --color-text-secondary: #8888a0;
+  --color-text-muted: #55556a;
+}
+
+body {
+  background-color: var(--color-surface-0);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
+
+/* Status dot animation */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.status-pulse {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Hide scrollbar for tab bars on mobile while keeping scroll functionality */
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}

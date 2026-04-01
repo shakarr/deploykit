@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@core/*": ["./src/core/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@layout/*": ["./src/features/layout/*"],
+      "@auth/*": ["./src/features/auth/*"],
+      "@project/*": ["./src/features/project/*"],
+      "@server/*": ["./src/features/server/*"],
+      "@settings/*": ["./src/features/settings/*"],
+      "@users/*": ["./src/features/users/*"],
+      "@database/*": ["./src/features/database/*"],
+      "@audit/*": ["./src/features/audit/*"],
+      "@metrics/*": ["./src/features/metrics/*"],
+      "@application/*": ["./src/features/application/*"],
+      "@dashboard/*": ["./src/features/dashboard/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}
