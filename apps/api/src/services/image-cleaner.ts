@@ -266,4 +266,4 @@ const pruneAllServers = async (opts: {
   );
 };
 
-export { pruneAllServers };
+export { pruneAllServers, pruneServerImages };
