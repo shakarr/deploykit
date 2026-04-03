@@ -13,7 +13,7 @@ set -e
 # ══════════════════════════════════════════════════════════════════════════════
 
 DEPLOYKIT_VERSION="latest"
-DEPLOYKIT_REPO="https://github.com/shakarr/deploykit.git"
+DEPLOYKIT_REPO="https://github.com/deploykithq/deploykit.git"
 DEPLOYKIT_BRANCH="master"
 DEPLOYKIT_DIR="/opt/deploykit"
 COMPOSE_FILE="docker-compose.prod.yml"
