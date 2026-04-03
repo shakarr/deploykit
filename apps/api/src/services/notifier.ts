@@ -241,7 +241,7 @@ async function sendEmail(
     throw new Error("Email: to and resendApiKey required");
 
   const emoji = getEventEmoji(payload.event);
-  const fromAddr = from || "DeployKit <notifications@deploykit.dev>";
+  const fromAddr = from || "DeployKit <notifications@deploykit.es>";
 
   let html = `<h2>${emoji} ${esc(payload.title)}</h2><p>${esc(payload.message)}</p>`;
   if (payload.meta) {

@@ -4,12 +4,12 @@ set -e
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  DeployKit — installer
-#  https://get.deploykit.dev
+#  https://get.deploykit.es
 #
 #  Usage:
-#    curl -fsSL https://get.deploykit.dev | sh
-#    curl -fsSL https://get.deploykit.dev | sh -s -- --domain deploy.example.com --email you@example.com
-#    curl -fsSL https://get.deploykit.dev | sh -s -- --domain deploy.example.com --email you@example.com --admin-email admin@example.com --admin-password secret123
+#    curl -fsSL https://get.deploykit.es | sh
+#    curl -fsSL https://get.deploykit.es | sh -s -- --domain deploy.example.com --email you@example.com
+#    curl -fsSL https://get.deploykit.es | sh -s -- --domain deploy.example.com --email you@example.com --admin-email admin@example.com --admin-password secret123
 # ══════════════════════════════════════════════════════════════════════════════
 
 DEPLOYKIT_VERSION="latest"
@@ -51,7 +51,7 @@ while [ $# -gt 0 ]; do
     -h|--help)
       printf "\n${BOLD}DeployKit installer${NC}\n\n"
       printf "  ${BOLD}Usage:${NC}\n"
-      printf "    curl -fsSL https://get.deploykit.dev | sh -s -- [options]\n\n"
+      printf "    curl -fsSL https://get.deploykit.es | sh -s -- [options]\n\n"
       printf "  ${BOLD}Options:${NC}\n"
       printf "    --domain    <domain>    Dashboard domain (e.g. deploy.example.com)  ${YELLOW}required${NC}\n"
       printf "    --email     <email>     Let's Encrypt email                          ${YELLOW}required${NC}\n"
@@ -61,10 +61,10 @@ while [ $# -gt 0 ]; do
       printf "    --branch    <branch>    Git branch         [default: master]\n\n"
       printf "  ${BOLD}Examples:${NC}\n"
       printf "    # Minimal:\n"
-      printf "    curl -fsSL https://get.deploykit.dev | sh -s -- \\\\\n"
+      printf "    curl -fsSL https://get.deploykit.es | sh -s -- \\\\\n"
       printf "      --domain deploy.example.com --email you@example.com\n\n"
       printf "    # With admin account pre-created:\n"
-      printf "    curl -fsSL https://get.deploykit.dev | sh -s -- \\\\\n"
+      printf "    curl -fsSL https://get.deploykit.es | sh -s -- \\\\\n"
       printf "      --domain deploy.example.com --email you@example.com \\\\\n"
       printf "      --admin-email admin@example.com --admin-password mypassword123\n\n"
       exit 0
