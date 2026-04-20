@@ -25,6 +25,7 @@ export class BuildService {
     dockerfilePath?: string;
     buildArgs?: Record<string, string>;
     port?: number;
+    startCommand?: string;
     onLog?: (log: string) => void;
   }): Promise<string> {
     const imageTag = `${opts.imageName}:${opts.tag}`;
@@ -46,7 +47,13 @@ export class BuildService {
         );
         break;
       case "nixpacks":
-        await this.buildNixpacks(opts.contextPath, imageTag, log, opts.port);
+        await this.buildNixpacks(
+          opts.contextPath,
+          imageTag,
+          log,
+          opts.port,
+          opts.startCommand,
+        );
         break;
       case "buildpacks":
         await this.buildBuildpacks(opts.contextPath, imageTag, log);
@@ -588,11 +595,16 @@ CMD ["node", "${entryPoint}"]
     imageTag: string,
     onLog?: (log: string) => void,
     port?: number,
+    startCommand?: string,
   ): Promise<void> {
     onLog?.(`Detecting project with Nixpacks...\n`);
 
     return new Promise((resolve, reject) => {
       const args = ["build", contextPath, "--name", imageTag];
+      if (startCommand) {
+        args.push("--start-cmd", startCommand);
+        onLog?.(`Using custom start command: ${startCommand}\n`);
+      }
 
       const proc = spawn("nixpacks", args, { timeout: 600_000 });
 

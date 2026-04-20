@@ -213,6 +213,7 @@ export function startDeployWorker() {
             dockerfilePath: app.dockerfilePath || "./Dockerfile",
             buildArgs: { ...envVars, ...(app.buildArgs || {}) },
             port: app.port || undefined,
+            startCommand: app.startCommand || undefined,
             onLog: log,
           });
         }

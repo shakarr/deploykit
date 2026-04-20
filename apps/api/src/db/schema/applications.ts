@@ -36,6 +36,7 @@ export const applications = pgTable("applications", {
     "./Dockerfile",
   ),
   buildArgs: jsonb("build_args").$type<Record<string, string>>(),
+  startCommand: text("start_command"),
   // Runtime
   envVars: text("env_vars"),
   volumes: jsonb("volumes").$type<string[]>(),

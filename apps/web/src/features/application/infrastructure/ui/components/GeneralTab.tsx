@@ -30,6 +30,7 @@ export const GeneralTab: React.FC<GeneralTabPropsI> = memo(function GeneralTab({
   );
   const [newVolume, setNewVolume] = useState("");
   const [buildType, setBuildType] = useState(app.buildType || "nixpacks");
+  const [startCommand, setStartCommand] = useState(app.startCommand || "");
   const [port, setPort] = useState(String(app.port || ""));
 
   // Health check
@@ -60,6 +61,7 @@ export const GeneralTab: React.FC<GeneralTabPropsI> = memo(function GeneralTab({
       repositoryUrl: repoUrl || undefined,
       branch,
       buildType,
+      startCommand: startCommand || null,
       port: parseInt(port) || undefined,
       ...(tokenDirty && { sourceToken: sourceToken || null }),
       rootDirectory: rootDirectory || null,
@@ -165,6 +167,22 @@ export const GeneralTab: React.FC<GeneralTabPropsI> = memo(function GeneralTab({
               onChange={(e) => setPort(e.target.value)}
               placeholder="3000"
             />
+          </div>
+          <div className="space-y-1.5">
+            <Input
+              label="Start Command"
+              value={startCommand}
+              onChange={(e) => setStartCommand(e.target.value)}
+              placeholder={
+                buildType === "nixpacks"
+                  ? "npm run start:prod"
+                  : "Only used by Nixpacks builds"
+              }
+            />
+            <p className="text-xs text-text-muted">
+              Override the auto-detected start command. Nixpacks only — for
+              Dockerfile builds, set <code>CMD</code> in your Dockerfile.
+            </p>
           </div>
         </section>
 

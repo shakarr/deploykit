@@ -61,6 +61,7 @@ export const createApplicationSchema = z.object({
   // Build
   buildType: BuildType.default("nixpacks"),
   dockerfilePath: z.string().max(255).default("./Dockerfile"),
+  startCommand: z.string().max(500).optional(), // override Nixpacks start command (e.g. "npm run start:prod")
   // Runtime
   port: z.number().int().min(1).max(65535).optional(),
   volumes: z.array(z.string().max(500)).max(20).optional(), // ["host:container"]

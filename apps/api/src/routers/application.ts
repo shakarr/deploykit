@@ -100,6 +100,7 @@ export const applicationRouter = router({
         branch: z.string().max(100).optional(),
         buildType: BuildType.optional(),
         dockerfilePath: z.string().max(255).optional(),
+        startCommand: z.string().max(500).nullable().optional(),
         port: z.number().int().min(1).max(65535).optional(),
         serverId: z.string().uuid().nullable().optional(),
         sourceToken: z.string().max(500).nullable().optional(),
@@ -124,7 +125,8 @@ export const applicationRouter = router({
           code: "FORBIDDEN",
           message: "Operator access required for this project",
         });
-      const { id, sourceToken, rootDirectory, volumes, ...data } = input;
+      const { id, sourceToken, rootDirectory, startCommand, volumes, ...data } =
+        input;
       const [app] = await ctx.db
         .update(applications)
         .set({
@@ -134,6 +136,9 @@ export const applicationRouter = router({
           }),
           ...(rootDirectory !== undefined && {
             rootDirectory: rootDirectory || null,
+          }),
+          ...(startCommand !== undefined && {
+            startCommand: startCommand || null,
           }),
           ...(volumes !== undefined && {
             volumes: (() => {
