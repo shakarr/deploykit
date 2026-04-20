@@ -290,7 +290,13 @@ export class BuildService {
         pkg.main,
       );
 
-      return this.dockerfileNodeServer(pmInstall, pm, entryPoint, port);
+      return this.dockerfileNodeServer(
+        pmInstall,
+        pm,
+        entryPoint,
+        port,
+        scripts["start"],
+      );
     }
 
     // Fallback: if has build script, treat as static SPA
@@ -413,6 +419,7 @@ export class BuildService {
         subDir,
         entryPoint,
         port,
+        scripts["start"],
       );
     }
 
@@ -474,8 +481,12 @@ CMD ["nginx", "-g", "daemon off;"]
     subDir: string,
     entryPoint = "dist/index.js",
     port?: number,
+    startScript?: string,
   ): string {
     const p = port || 3000;
+    const cmd = startScript
+      ? `CMD ["npm", "start"]`
+      : `CMD ["node", "${entryPoint}"]`;
     return `FROM node:20-alpine AS build
 WORKDIR /app
 COPY . .
@@ -488,7 +499,7 @@ ENV NODE_ENV=production
 COPY --from=build /app .
 WORKDIR /app/${subDir}
 EXPOSE ${p}
-CMD ["node", "${entryPoint}"]
+${cmd}
 `;
   }
 
@@ -541,8 +552,15 @@ CMD ["node", "${entryPoint}"]
     pm: string,
     entryPoint = "dist/index.js",
     port?: number,
+    startScript?: string,
   ): string {
     const p = port || 3000;
+    // Prefer running the user's `start` script via `npm start` so multi-step
+    // commands (e.g. "prisma migrate deploy && node dist/index.js") run intact.
+    // Falls back to the detected entry point only when no start script exists.
+    const cmd = startScript
+      ? `CMD ["npm", "start"]`
+      : `CMD ["node", "${entryPoint}"]`;
     return `FROM node:20-alpine
     WORKDIR /app
     COPY package*.json pnpm-lock.yaml* yarn.lock* bun.lockb* ./
@@ -550,7 +568,7 @@ CMD ["node", "${entryPoint}"]
     COPY . .
     RUN ${pm} run build 2>/dev/null || true
     EXPOSE ${p}
-    CMD ["node", "${entryPoint}"]
+    ${cmd}
     `;
   }
 
