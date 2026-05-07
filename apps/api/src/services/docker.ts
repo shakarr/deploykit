@@ -191,9 +191,15 @@ export class DockerService {
     dockerfilePath = "Dockerfile",
     onProgress?: (log: string) => void,
   ): Promise<void> {
+    // Docker Engine API expects a context-relative path WITHOUT a leading `./`.
+    // Users (and our DB default) often store `./Dockerfile`, which makes
+    // dockerode reject the build with "Cannot locate specified Dockerfile".
+    // Normalize it here so both forms work.
+    const dockerfile = dockerfilePath.replace(/^\.\/+/, "");
+
     const stream = await docker.buildImage(
       { context: contextPath, src: ["."] },
-      { t: tag, dockerfile: dockerfilePath },
+      { t: tag, dockerfile },
     );
 
     return new Promise((resolve, reject) => {

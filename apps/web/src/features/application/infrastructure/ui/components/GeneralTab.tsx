@@ -30,6 +30,9 @@ export const GeneralTab: React.FC<GeneralTabPropsI> = memo(function GeneralTab({
   );
   const [newVolume, setNewVolume] = useState("");
   const [buildType, setBuildType] = useState(app.buildType || "nixpacks");
+  const [dockerfilePath, setDockerfilePath] = useState(
+    app.dockerfilePath || "Dockerfile",
+  );
   const [startCommand, setStartCommand] = useState(app.startCommand || "");
   const [port, setPort] = useState(String(app.port || ""));
 
@@ -61,6 +64,7 @@ export const GeneralTab: React.FC<GeneralTabPropsI> = memo(function GeneralTab({
       repositoryUrl: repoUrl || undefined,
       branch,
       buildType,
+      dockerfilePath: buildType === "dockerfile" ? dockerfilePath || "Dockerfile" : undefined,
       startCommand: startCommand || null,
       port: parseInt(port) || undefined,
       ...(tokenDirty && { sourceToken: sourceToken || null }),
@@ -168,6 +172,22 @@ export const GeneralTab: React.FC<GeneralTabPropsI> = memo(function GeneralTab({
               placeholder="3000"
             />
           </div>
+          {buildType === "dockerfile" && (
+            <div className="space-y-1.5">
+              <Input
+                label="Dockerfile Path"
+                value={dockerfilePath}
+                onChange={(e) => setDockerfilePath(e.target.value)}
+                placeholder="Dockerfile"
+                autoComplete="off"
+              />
+              <p className="text-xs text-text-muted">
+                Path to the Dockerfile, relative to the repo root (or root
+                directory above). Don't prefix with <code>./</code>.
+              </p>
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <Input
               label="Start Command"
